@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription | EduManage Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2><i class="fas fa-user-plus"></i> Inscription</h2>
+                <p>Créez votre compte gratuitement</p>
+            </div>
+            <div class="auth-body">
+                <form id="registerForm">
+                    <div class="input-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="regEmail" placeholder="exemple@ecole.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-lock"></i> Mot de passe</label>
+                        <input type="password" id="regPassword" placeholder="••••••••" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-id-badge"></i> Rôle</label>
+                        <select id="regRole">
+                            <option value="student">Étudiant</option>
+                            <option value="teacher">Enseignant</option>
+                            <option value="admin">Administrateur</option>
+                        </select>
+                    </div>
+                    <div class="input-group" id="teacherNameGroup" style="display: none;">
+                        <label><i class="fas fa-user"></i> Nom complet</label>
+                        <input type="text" id="teacherName" placeholder="Nom et prénom">
+                    </div>
+                    <div class="input-group" id="studentNameGroup" style="display: none;">
+                        <label><i class="fas fa-user-graduate"></i> Nom complet</label>
+                        <input type="text" id="studentName" placeholder="Nom et prénom">
+                    </div>
+                    <button type="submit" class="btn-auth">S'inscrire</button>
+                    <div class="switch-auth">
+                        Déjà un compte ? <a href="login.html">Se connecter</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>

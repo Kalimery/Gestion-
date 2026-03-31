@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des notes | EduManage Pro</title>
+    <title>Gestion des étudiants | EduManage Pro</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -22,7 +22,7 @@
                 <a href="dashboard.html" class="nav-item">
                     <i class="fas fa-tachometer-alt"></i> <span>Tableau de bord</span>
                 </a>
-                <a href="students.html" class="nav-item">
+                <a href="students.html" class="nav-item active">
                     <i class="fas fa-user-graduate"></i> <span>Étudiants</span>
                 </a>
                 <a href="teachers.html" class="nav-item">
@@ -31,7 +31,7 @@
                 <a href="modules.html" class="nav-item">
                     <i class="fas fa-book-open"></i> <span>Modules</span>
                 </a>
-                <a href="grades.html" class="nav-item active">
+                <a href="grades.html" class="nav-item">
                     <i class="fas fa-chart-line"></i> <span>Notes</span>
                 </a>
             </aside>
@@ -39,39 +39,25 @@
                 <div class="page active-page">
                     <div class="card">
                         <div class="card-header">
-                            <h2><i class="fas fa-star-of-life"></i> Relevé des notes</h2>
-                            <button class="btn-primary" id="addGradeBtn">+ Attribuer note</button>
+                            <h2><i class="fas fa-user-graduate"></i> Gestion des étudiants</h2>
+                            <button class="btn-primary" id="addStudentBtn">+ Nouvel étudiant</button>
                         </div>
-                        <div class="filters">
-                            <select id="filterModule" class="filter-select">
-                                <option value="">Tous les modules</option>
-                            </select>
-                            <select id="filterStudent" class="filter-select">
-                                <option value="">Tous les étudiants</option>
-                            </select>
-                            <select id="filterStatus" class="filter-select">
-                                <option value="">Tous les statuts</option>
-                                <option value="Publié">Publié</option>
-                                <option value="Brouillon">Brouillon</option>
-                            </select>
+                        <div class="search-bar">
+                            <input type="text" id="searchStudent" placeholder="Rechercher un étudiant...">
+                            <i class="fas fa-search"></i>
                         </div>
-                        <table id="gradesTable">
+                        <table id="studentsTable">
                             <thead>
                                 <tr>
-                                    <th>Étudiant</th>
-                                    <th>Module</th>
-                                    <th>Note /20</th>
-                                    <th>Date de saisie</th>
-                                    <th>Statut</th>
+                                    <th>ID</th>
+                                    <th>Nom & Prénom</th>
+                                    <th>Email</th>
+                                    <th>Moyenne</th>
                                     <th>Actions</th>
                                  </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
-                    </div>
-                    <div class="card stats-card">
-                        <h3>📊 Statistiques académiques</h3>
-                        <div id="gradeStats"></div>
                     </div>
                 </div>
             </main>

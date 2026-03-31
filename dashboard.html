@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des enseignants | EduManage Pro</title>
+    <title>Tableau de bord | EduManage Pro</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -13,19 +13,19 @@
         <nav class="navbar">
             <div class="logo"><i class="fas fa-chalkboard-user"></i> EduManage</div>
             <div class="user-info">
-                <div class="user-badge" id="currentUserRole"></div>
+                <div class="user-badge" id="currentUserRole"><i class="fas fa-user-check"></i> Chargement...</div>
                 <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
             </div>
         </nav>
         <div class="dashboard-layout">
             <aside class="sidebar">
-                <a href="dashboard.html" class="nav-item">
+                <a href="dashboard.html" class="nav-item active">
                     <i class="fas fa-tachometer-alt"></i> <span>Tableau de bord</span>
                 </a>
                 <a href="students.html" class="nav-item">
                     <i class="fas fa-user-graduate"></i> <span>Étudiants</span>
                 </a>
-                <a href="teachers.html" class="nav-item active">
+                <a href="teachers.html" class="nav-item">
                     <i class="fas fa-chalkboard-user"></i> <span>Enseignants</span>
                 </a>
                 <a href="modules.html" class="nav-item">
@@ -38,33 +38,33 @@
             <main class="content-area">
                 <div class="page active-page">
                     <div class="card">
-                        <div class="card-header">
-                            <h2><i class="fas fa-chalkboard-user"></i> Gestion des enseignants</h2>
-                            <button class="btn-primary" id="addTeacherBtn">+ Nouvel enseignant</button>
+                        <h2><i class="fas fa-chart-pie"></i> Vue d'ensemble</h2>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <h3 id="statStudents">0</h3>
+                                <p>Étudiants</p>
+                            </div>
+                            <div class="stat-box">
+                                <h3 id="statTeachers">0</h3>
+                                <p>Enseignants</p>
+                            </div>
+                            <div class="stat-box">
+                                <h3 id="statModules">0</h3>
+                                <p>Modules</p>
+                            </div>
+                            <div class="stat-box">
+                                <h3 id="statGrades">0</h3>
+                                <p>Notes saisies</p>
+                            </div>
                         </div>
-                        <div class="search-bar">
-                            <input type="text" id="searchTeacher" placeholder="Rechercher un enseignant...">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <table id="teachersTable">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nom & Prénom</th>
-                                    <th>Email</th>
-                                    <th>Modules enseignés</th>
-                                    <th>Actions</th>
-                                 </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    </div>
+                    <div class="card">
+                        <h3>📊 Dernières activités</h3>
+                        <div id="recentActivities"></div>
                     </div>
                 </div>
             </main>
         </div>
-    </div>
-    <div id="genericModal" class="form-modal">
-        <div class="modal-content" id="modalContent"></div>
     </div>
     <script src="js/app.js"></script>
 </body>

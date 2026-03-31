@@ -2,30 +2,53 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Accueil - Gestion Université</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduManage Pro | Accueil</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-
-<header>
-    <h1>Gestion Université</h1>
-    <nav>
-        <a href="index.html">Accueil</a>
-        <a href="students.html">Étudiants</a>
-        <a href="teachers.html">Enseignants</a>
-        <a href="modules.html">Modules</a>
-        <a href="grades.html">Notes</a>
+    <nav class="navbar-landing">
+        <div class="logo"><i class="fas fa-graduation-cap"></i> EduManage Pro</div>
+        <div class="nav-links">
+            <a href="login.html" class="btn-outline">Connexion</a>
+            <a href="register.html" class="btn-primary">Inscription</a>
+        </div>
     </nav>
-</header>
 
-<main>
-    <h2>Bienvenue</h2>
-    <p>Application de gestion des étudiants, enseignants, modules et notes.</p>
-</main>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Gérez votre établissement <span class="highlight">scolaire</span> en toute simplicité</h1>
+            <p>Solution complète de gestion des notes, étudiants, enseignants et modules. Suivez les performances académiques en temps réel.</p>
+            <div class="hero-buttons">
+                <a href="register.html" class="btn-large btn-primary">Commencer gratuitement</a>
+                <a href="login.html" class="btn-large btn-outline">Déjà inscrit ? Se connecter</a>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3>Étudiants</h3>
+                <p>Gestion complète des inscriptions</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chalkboard-user"></i>
+                <h3>Enseignants</h3>
+                <p>Suivi des professeurs et modules</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Notes & Évaluations</h3>
+                <p>Relevés de notes instantanés</p>
+            </div>
+        </div>
+    </section>
 
-<footer>
-    <p>© 2026 - Projet Web</p>
-</footer>
+    <footer>
+        <p>&copy; 2025 EduManage Pro - Solution de gestion scolaire</p>
+    </footer>
 
+    <script src="js/app.js"></script>
 </body>
 </html>
