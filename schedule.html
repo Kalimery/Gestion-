@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emploi du temps | EduManage Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== EMPLOI DU TEMPS STYLES ===== */
+        .schedule-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .schedule-toolbar h2 {
+            color: #1e3c72;
+        }
+
+        .schedule-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .week-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f0f4f9;
+            padding: 6px 12px;
+            border-radius: 40px;
+        }
+
+        .week-nav button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #1e3c72;
+            font-size: 1rem;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: 0.15s;
+        }
+
+        .week-nav button:hover { background: #dde6f5; }
+        .week-nav span { font-weight: 600; font-size: 0.9rem; color: #2c3e66; white-space: nowrap; }
+
+        /* Schedule Grid */
+        .schedule-wrapper {
+            overflow-x: auto;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(6, 1fr);
+            min-width: 700px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .schedule-header {
+            background: #1e3c72;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .schedule-header.time-col {
+            background: #0f2b4f;
+        }
+
+        .schedule-header .date-label {
+            font-size: 0.7rem;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+
+        .time-slot {
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #7c8b9c;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .schedule-cell {
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            min-height: 64px;
+            position: relative;
+            transition: background 0.15s;
+        }
+
+        .schedule-cell:hover {
+            background: #f0f4ff;
+        }
+
+        .schedule-cell.is-admin:hover {
+            cursor: pointer;
+        }
+
+        .schedule-cell:last-child {
+            border-right: none;
+        }
+
+        .slot-event {
+            position: absolute;
+            inset: 3px;
+            border-radius: 10px;
+            padding: 6px 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            overflow: hidden;
+            transition: opacity 0.15s, transform 0.15s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .slot-event:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .slot-event .ev-module {
+            font-size: 0.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .slot-event .ev-teacher {
+            font-size: 0.68rem;
+            opacity: 0.85;
+        }
+
+        .slot-event .ev-type {
+            font-size: 0.65rem;
+            background: rgba(255,255,255,0.25);
+            padding: 1px 5px;
+            border-radius: 6px;
+            align-self: flex-start;
+            margin-top: 2px;
+        }
+
+        .delete-event-btn {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            font-size: 0.6rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .slot-event:hover .delete-event-btn { opacity: 1; }
+
+        /* Colors for modules */
+        .color-0 { background: linear-gradient(135deg, #1e3c72, #2b5b8b); }
+        .color-1 { background: linear-gradient(135deg, #6c3483, #8e44ad); }
+        .color-2 { background: linear-gradient(135deg, #1a5276, #2980b9); }
+        .color-3 { background: linear-gradient(135deg, #1e8449, #27ae60); }
+        .color-4 { background: linear-gradient(135deg, #784212, #a04000); }
+        .color-5 { background: linear-gradient(135deg, #922b21, #e74c3c); }
+        .color-6 { background: linear-gradient(135deg, #117a65, #1abc9c); }
+        .color-7 { background: linear-gradient(135deg, #515a5a, #717d7e); }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eef2f9;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Empty state */
+        .empty-cell-hint {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.15s;
+            color: #aab4be;
+            font-size: 1.2rem;
+        }
+
+        .schedule-cell.is-admin:hover .empty-cell-hint { opacity: 1; }
+
+        .info-banner {
+            background: #eef2ff;
+            border: 1px solid #c3cff5;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: #2c3e66;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-banner i { color: #1e3c72; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="logo"><i class="fas fa-chalkboard-user"></i> EduManage</div>
+            <div class="user-info">
+                <div class="user-badge" id="currentUserRole"></div>
+                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-layout">
+            <aside class="sidebar">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i> <span>Tableau de bord</span>
+                </a>
+                <a href="students.html" class="nav-item">
+                    <i class="fas fa-user-graduate"></i> <span>Étudiants</span>
+                </a>
+                <a href="teachers.html" class="nav-item">
+                    <i class="fas fa-chalkboard-user"></i> <span>Enseignants</span>
+                </a>
+                <a href="modules.html" class="nav-item">
+                    <i class="fas fa-book-open"></i> <span>Modules</span>
+                </a>
+                <a href="grades.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> <span>Notes</span>
+                </a>
+                <a href="schedule.html" class="nav-item active">
+                    <i class="fas fa-calendar-week"></i> <span>Emploi du temps</span>
+                </a>
+                <div id="adminNavItem" style="display:none;">
+                    <hr style="border:none; border-top:1px solid #e9edf2; margin: 1rem 0;">
+                    <a href="admin.html" class="nav-item" style="color:#e74c3c;">
+                        <i class="fas fa-shield-alt"></i> <span>Administration</span>
+                    </a>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="card">
+                    <div class="schedule-toolbar">
+                        <h2><i class="fas fa-calendar-week"></i> Emploi du temps</h2>
+                        <div class="schedule-actions">
+                            <div class="week-nav">
+                                <button onclick="changeWeek(-1)"><i class="fas fa-chevron-left"></i></button>
+                                <span id="weekLabel">Semaine du ...</span>
+                                <button onclick="changeWeek(1)"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            <button class="btn-outline" onclick="goToCurrentWeek()">Aujourd'hui</button>
+                            <button class="btn-primary" id="addSlotBtn" style="display:none;">+ Ajouter créneau</button>
+                        </div>
+                    </div>
+
+                    <div id="infoBanner" class="info-banner" style="display:none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Cliquez sur une case vide pour ajouter un créneau, ou sur un créneau existant pour le modifier.</span>
+                    </div>
+
+                    <div class="schedule-wrapper">
+                        <div class="schedule-grid" id="scheduleGrid">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="legend" id="moduleLegend"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="genericModal" class="form-modal">
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // ===== SCHEDULE DATA & CONFIG =====
+        const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        const HOURS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+        const CLASS_TYPES = ['CM', 'TD', 'TP', 'Examen', 'Projet'];
+
+        let schedule = []; // { id, moduleId, teacherId, day (0-5), hour (0-10), type, room, weekOffset }
+        let nextScheduleId = 1;
+        let currentWeekOffset = 0;
+        let isAdmin = false;
+
+        // ===== LOAD/SAVE SCHEDULE =====
+        function loadSchedule() {
+            const raw = localStorage.getItem('edumanage_schedule');
+            if (raw) {
+                const d = JSON.parse(raw);
+                schedule = d.schedule || [];
+                nextScheduleId = d.nextScheduleId || 1;
+            } else {
+                // Demo data
+                schedule = [
+                    { id: 1, moduleId: 1, teacherId: 1, day: 0, hour: 0, type: 'CM', room: 'Amphi A', weekOffset: 0 },
+                    { id: 2, moduleId: 2, teacherId: 1, day: 1, hour: 2, type: 'TD', room: 'Salle 201', weekOffset: 0 },
+                    { id: 3, moduleId: 3, teacherId: 1, day: 3, hour: 5, type: 'TP', room: 'Labo Info', weekOffset: 0 },
+                    { id: 4, moduleId: 1, teacherId: 1, day: 2, hour: 7, type: 'TD', room: 'Salle 104', weekOffset: 0 },
+                    { id: 5, moduleId: 2, teacherId: 1, day: 4, hour: 1, type: 'CM', room: 'Amphi B', weekOffset: 0 },
+                ];
+                nextScheduleId = 6;
+                saveSchedule();
+            }
+        }
+
+        function saveSchedule() {
+            localStorage.setItem('edumanage_schedule', JSON.stringify({ schedule, nextScheduleId }));
+        }
+
+        // ===== WEEK NAVIGATION =====
+        function getWeekDates(offset) {
+            const now = new Date();
+            const day = now.getDay();
+            const diff = now.getDate() - day + (day === 0 ? -6 : 1) + (offset * 7);
+            const monday = new Date(now.setDate(diff));
+            return DAYS.map((_, i) => {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                return d;
+            });
+        }
+
+        function changeWeek(dir) {
+            currentWeekOffset += dir;
+            renderSchedule();
+        }
+
+        function goToCurrentWeek() {
+            currentWeekOffset = 0;
+            renderSchedule();
+        }
+
+        function formatDate(d) {
+            return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+        }
+
+        // ===== GET MODULE COLOR =====
+        function getModuleColor(moduleId) {
+            return 'color-' + ((moduleId - 1) % 8);
+        }
+
+        // ===== RENDER SCHEDULE =====
+        function renderSchedule() {
+            const weekDates = getWeekDates(currentWeekOffset);
+            const monday = weekDates[0];
+            const saturday = weekDates[5];
+
+            document.getElementById('weekLabel').textContent =
+                `${formatDate(monday)} – ${formatDate(saturday)}`;
+
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = '';
+
+            // Header row
+            const timeHeader = document.createElement('div');
+            timeHeader.className = 'schedule-header time-col';
+            timeHeader.textContent = 'Heure';
+            grid.appendChild(timeHeader);
+
+            DAYS.forEach((day, i) => {
+                const h = document.createElement('div');
+                h.className = 'schedule-header';
+                h.innerHTML = `${day}<div class="date-label">${formatDate(weekDates[i])}</div>`;
+                grid.appendChild(h);
+            });
+
+            // Time rows
+            HOURS.forEach((hour, hIdx) => {
+                const timeCell = document.createElement('div');
+                timeCell.className = 'time-slot';
+                timeCell.textContent = hour;
+                grid.appendChild(timeCell);
+
+                DAYS.forEach((_, dIdx) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'schedule-cell' + (isAdmin ? ' is-admin' : '');
+
+                    const event = schedule.find(s => s.day === dIdx && s.hour === hIdx && s.weekOffset === currentWeekOffset);
+
+                    if (event) {
+                        const mod = modules.find(m => m.id === event.moduleId);
+                        const teacher = teachers.find(t => t.id === event.teacherId);
+                        const ev = document.createElement('div');
+                        ev.className = `slot-event ${getModuleColor(event.moduleId)}`;
+                        ev.innerHTML = `
+                            <span class="ev-type">${event.type}</span>
+                            <span class="ev-module">${mod ? mod.nom_module : 'Module inconnu'}</span>
+                            <span class="ev-teacher"><i class="fas fa-user-tie" style="font-size:0.6rem"></i> ${teacher ? teacher.nom_prenom.split(' ').pop() : 'N/A'}</span>
+                            ${event.room ? `<span class="ev-teacher"><i class="fas fa-door-open" style="font-size:0.6rem"></i> ${event.room}</span>` : ''}
+                            ${isAdmin ? `<button class="delete-event-btn" onclick="deleteSlot(event, ${event.id})"><i class="fas fa-times"></i></button>` : ''}
+                        `;
+                        if (isAdmin) {
+                            ev.onclick = (e) => {
+                                if (e.target.closest('.delete-event-btn')) return;
+                                openSlotModal(dIdx, hIdx, event);
+                            };
+                        }
+                        cell.appendChild(ev);
+                    } else {
+                        if (isAdmin) {
+                            const hint = document.createElement('div');
+                            hint.className = 'empty-cell-hint';
+                            hint.innerHTML = '<i class="fas fa-plus"></i>';
+                            cell.appendChild(hint);
+                            cell.onclick = () => openSlotModal(dIdx, hIdx, null);
+                        }
+                    }
+
+                    grid.appendChild(cell);
+                });
+            });
+
+            renderLegend();
+        }
+
+        // ===== RENDER LEGEND =====
+        function renderLegend() {
+            const legend = document.getElementById('moduleLegend');
+            const usedModuleIds = [...new Set(schedule.filter(s => s.weekOffset === currentWeekOffset).map(s => s.moduleId))];
+            if (usedModuleIds.length === 0) {
+                legend.innerHTML = '<span style="color:#aab4be; font-size:0.85rem;">Aucun cours planifié cette semaine.</span>';
+                return;
+            }
+            legend.innerHTML = usedModuleIds.map(mid => {
+                const mod = modules.find(m => m.id === mid);
+                const colorClass = getModuleColor(mid);
+                const fakeDiv = document.createElement('div');
+                fakeDiv.className = colorClass;
+                document.body.appendChild(fakeDiv);
+                const bg = getComputedStyle(fakeDiv).background;
+                document.body.removeChild(fakeDiv);
+                return `<div class="legend-item">
+                    <div class="legend-dot ${colorClass}" style="background:"></div>
+                    <span>${mod ? mod.nom_module : 'Module ' + mid}</span>
+                </div>`;
+            }).join('');
+
+            // Apply gradient colors via inline style trick
+            legend.querySelectorAll('.legend-dot').forEach((dot, i) => {
+                const colors = [
+                    '#1e3c72', '#6c3483', '#1a5276', '#1e8449',
+                    '#784212', '#922b21', '#117a65', '#515a5a'
+                ];
+                dot.style.background = colors[usedModuleIds[i] % 8 > 0 ? (usedModuleIds[i]-1) % 8 : 0];
+            });
+        }
+
+        // ===== OPEN SLOT MODAL =====
+        function openSlotModal(dayIdx, hourIdx, existingEvent) {
+            const moduleOptions = modules.map(m => `<option value="${m.id}" ${existingEvent && existingEvent.moduleId === m.id ? 'selected' : ''}>${escapeHtml(m.nom_module)}</option>`).join('');
+            const teacherOptions = teachers.map(t => `<option value="${t.id}" ${existingEvent && existingEvent.teacherId === t.id ? 'selected' : ''}>${escapeHtml(t.nom_prenom)}</option>`).join('');
+            const typeOptions = CLASS_TYPES.map(type => `<option value="${type}" ${existingEvent && existingEvent.type === type ? 'selected' : ''}>${type}</option>`).join('');
+            const hourOptions = HOURS.map((h, i) => `<option value="${i}" ${(existingEvent ? existingEvent.hour : hourIdx) === i ? 'selected' : ''}>${h}</option>`).join('');
+
+            const title = existingEvent ? 'Modifier le créneau' : `Ajouter un créneau — ${DAYS[dayIdx]}, ${HOURS[hourIdx]}`;
+
+            showModal(`
+                <h3>${title}</h3>
+                <form id="slotForm">
+                    <div class="input-group">
+                        <label>Module</label>
+                        <select id="slotModule">${moduleOptions}</select>
+                    </div>
+                    <div class="input-group">
+                        <label>Enseignant</label>
+                        <select id="slotTeacher">${teacherOptions}</select>
+                    </div>
+                    <div class="input-group">
+                        <label>Type de séance</label>
+                        <select id="slotType">${typeOptions}</select>
+                    </div>
+                    <div class="input-group">
+                        <label>Heure de début</label>
+                        <select id="slotHour">${hourOptions}</select>
+                    </div>
+                    <div class="input-group">
+                        <label>Salle / Local</label>
+                        <input type="text" id="slotRoom" placeholder="ex: Amphi A, Salle 201..." value="${existingEvent ? existingEvent.room || '' : ''}">
+                    </div>
+                    ${existingEvent ? `<button type="button" class="danger-btn" onclick="deleteSlot(event, ${existingEvent.id}); document.getElementById('genericModal').classList.remove('open');" style="width:100%; margin-bottom:0.5rem;">Supprimer ce créneau</button>` : ''}
+                    <button type="submit" class="btn-primary" style="width:100%">${existingEvent ? 'Enregistrer' : 'Ajouter'}</button>
+                </form>
+            `, () => {
+                const moduleId = parseInt(document.getElementById('slotModule').value);
+                const teacherId = parseInt(document.getElementById('slotTeacher').value);
+                const type = document.getElementById('slotType').value;
+                const hour = parseInt(document.getElementById('slotHour').value);
+                const room = document.getElementById('slotRoom').value;
+
+                // Check for conflict
+                const conflict = schedule.find(s =>
+                    s.day === dayIdx && s.hour === hour &&
+                    s.weekOffset === currentWeekOffset &&
+                    (!existingEvent || s.id !== existingEvent.id)
+                );
+                if (conflict) {
+                    alert('Ce créneau est déjà occupé ! Choisissez une autre heure.');
+                    return;
+                }
+
+                if (existingEvent) {
+                    const ev = schedule.find(s => s.id === existingEvent.id);
+                    if (ev) { ev.moduleId = moduleId; ev.teacherId = teacherId; ev.type = type; ev.hour = hour; ev.room = room; }
+                } else {
+                    schedule.push({ id: nextScheduleId++, moduleId, teacherId, day: dayIdx, hour, type, room, weekOffset: currentWeekOffset });
+                }
+                saveSchedule();
+                renderSchedule();
+            });
+        }
+
+        // ===== DELETE SLOT =====
+        function deleteSlot(e, id) {
+            e.stopPropagation();
+            if (!confirm('Supprimer ce créneau ?')) return;
+            schedule = schedule.filter(s => s.id !== id);
+            saveSchedule();
+            renderSchedule();
+        }
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSchedule();
+
+            const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            isAdmin = user && user.role === 'admin';
+
+            if (isAdmin) {
+                document.getElementById('addSlotBtn').style.display = 'block';
+                document.getElementById('infoBanner').style.display = 'flex';
+                document.getElementById('adminNavItem').style.display = 'block';
+
+                document.getElementById('addSlotBtn').addEventListener('click', () => {
+                    openSlotModal(0, 0, null);
+                });
+            }
+
+            renderSchedule();
+        });
+    </script>
+</body>
+</html>

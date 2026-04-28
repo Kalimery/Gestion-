@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration | EduManage Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== ADMIN-SPECIFIC STYLES ===== */
+        .admin-badge {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .admin-header-bar {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            border-bottom: 2px solid #e74c3c;
+        }
+
+        .admin-header-bar i { color: #e74c3c; }
+
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border-left: 4px solid #1e3c72;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-stat-card.red { border-left-color: #e74c3c; }
+        .admin-stat-card.green { border-left-color: #27ae60; }
+        .admin-stat-card.orange { border-left-color: #f39c12; }
+
+        .admin-stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: #eef2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #1e3c72;
+            flex-shrink: 0;
+        }
+
+        .admin-stat-card.red .admin-stat-icon { background: #ffeaea; color: #e74c3c; }
+        .admin-stat-card.green .admin-stat-icon { background: #e8f8f0; color: #27ae60; }
+        .admin-stat-card.orange .admin-stat-icon { background: #fff8e1; color: #f39c12; }
+
+        .admin-stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a2634;
+            line-height: 1;
+        }
+
+        .admin-stat-info p {
+            font-size: 0.82rem;
+            color: #7c8b9c;
+            margin-top: 2px;
+        }
+
+        .users-table-container {
+            overflow-x: auto;
+        }
+
+        .role-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .role-admin { background: #ffeaea; color: #c0392b; }
+        .role-teacher { background: #e8f0ff; color: #1e3c72; }
+        .role-student { background: #e8f8f0; color: #27ae60; }
+
+        .danger-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .danger-btn:hover { background: #c0392b; }
+
+        .section-divider {
+            border: none;
+            border-top: 2px solid #eef2f9;
+            margin: 2rem 0;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eef2f9;
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            color: #7c8b9c;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn.active {
+            color: #1e3c72;
+            border-bottom-color: #1e3c72;
+            font-weight: 700;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .reset-zone {
+            background: #fff5f5;
+            border: 2px dashed #f5a5a5;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .reset-zone p {
+            color: #7c8b9c;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .warning-text { color: #e74c3c; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="admin-header-bar">
+        <i class="fas fa-shield-alt"></i>
+        <strong>Espace Administrateur</strong> — Accès restreint. Toutes les actions sont enregistrées.
+    </div>
+
+    <div class="app-container">
+        <nav class="navbar">
+            <div class="logo"><i class="fas fa-chalkboard-user"></i> EduManage <span class="admin-badge">Admin</span></div>
+            <div class="user-info">
+                <div class="user-badge" id="currentUserRole"></div>
+                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-layout">
+            <aside class="sidebar">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i> <span>Tableau de bord</span>
+                </a>
+                <a href="students.html" class="nav-item">
+                    <i class="fas fa-user-graduate"></i> <span>Étudiants</span>
+                </a>
+                <a href="teachers.html" class="nav-item">
+                    <i class="fas fa-chalkboard-user"></i> <span>Enseignants</span>
+                </a>
+                <a href="modules.html" class="nav-item">
+                    <i class="fas fa-book-open"></i> <span>Modules</span>
+                </a>
+                <a href="grades.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> <span>Notes</span>
+                </a>
+                <a href="schedule.html" class="nav-item">
+                    <i class="fas fa-calendar-week"></i> <span>Emploi du temps</span>
+                </a>
+                <hr style="border:none; border-top:1px solid #e9edf2; margin: 1rem 0;">
+                <a href="admin.html" class="nav-item active" style="background:#1a1a2e; color:white;">
+                    <i class="fas fa-shield-alt"></i> <span>Administration</span>
+                </a>
+            </aside>
+
+            <main class="content-area">
+                <!-- Stats Overview -->
+                <div class="admin-stats-grid" id="adminStatsGrid">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="admin-stat-info">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Comptes utilisateurs</p>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card green">
+                        <div class="admin-stat-icon"><i class="fas fa-user-graduate"></i></div>
+                        <div class="admin-stat-info">
+                            <h3 id="totalStudents">0</h3>
+                            <p>Étudiants inscrits</p>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card orange">
+                        <div class="admin-stat-icon"><i class="fas fa-chalkboard-user"></i></div>
+                        <div class="admin-stat-info">
+                            <h3 id="totalTeachers">0</h3>
+                            <p>Enseignants actifs</p>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card red">
+                        <div class="admin-stat-icon"><i class="fas fa-user-shield"></i></div>
+                        <div class="admin-stat-info">
+                            <h3 id="totalAdmins">0</h3>
+                            <p>Administrateurs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Card with Tabs -->
+                <div class="card">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab('users')">
+                            <i class="fas fa-users"></i> Gestion des comptes
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('settings')">
+                            <i class="fas fa-cog"></i> Paramètres système
+                        </button>
+                    </div>
+
+                    <!-- Tab: Users -->
+                    <div class="tab-content active" id="tab-users">
+                        <div class="card-header">
+                            <h3 style="color:#1e3c72;">Tous les comptes utilisateurs</h3>
+                            <button class="btn-primary" id="addUserBtn">+ Créer un compte</button>
+                        </div>
+                        <div class="search-bar">
+                            <input type="text" id="searchUser" placeholder="Rechercher par email ou nom...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="filters">
+                            <select id="filterRole" class="filter-select" onchange="renderUsers()">
+                                <option value="">Tous les rôles</option>
+                                <option value="admin">Administrateur</option>
+                                <option value="teacher">Enseignant</option>
+                                <option value="student">Étudiant</option>
+                            </select>
+                        </div>
+                        <div class="users-table-container">
+                            <table id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nom complet</th>
+                                        <th>Email</th>
+                                        <th>Rôle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Settings -->
+                    <div class="tab-content" id="tab-settings">
+                        <h3 style="color:#1e3c72; margin-bottom:1.5rem;">Paramètres système</h3>
+                        
+                        <div style="margin-bottom:2rem;">
+                            <h4 style="margin-bottom:1rem; color:#2c3e66;">📊 Export des données</h4>
+                            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                                <button class="btn-primary" onclick="exportData('students')">
+                                    <i class="fas fa-download"></i> Exporter étudiants (JSON)
+                                </button>
+                                <button class="btn-primary" onclick="exportData('grades')">
+                                    <i class="fas fa-download"></i> Exporter notes (JSON)
+                                </button>
+                                <button class="btn-primary" onclick="exportData('all')">
+                                    <i class="fas fa-download"></i> Exporter tout
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <div>
+                            <h4 style="margin-bottom:1rem; color:#2c3e66;">⚠️ Zone de danger</h4>
+                            <div class="reset-zone">
+                                <p><span class="warning-text">Attention !</span> Ces actions sont irréversibles.</p>
+                                <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+                                    <button class="danger-btn" onclick="resetSection('grades')">
+                                        <i class="fas fa-trash"></i> Effacer toutes les notes
+                                    </button>
+                                    <button class="danger-btn" onclick="resetSection('all')">
+                                        <i class="fas fa-bomb"></i> Réinitialiser les données démo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="genericModal" class="form-modal">
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // ===== ADMIN PAGE GUARD =====
+        function adminGuard() {
+            const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (!u || u.role !== 'admin') {
+                alert('Accès réservé aux administrateurs.');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ===== ADMIN STATS =====
+        function updateAdminStats() {
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalStudents').textContent = users.filter(u => u.role === 'student').length;
+            document.getElementById('totalTeachers').textContent = users.filter(u => u.role === 'teacher').length;
+            document.getElementById('totalAdmins').textContent = users.filter(u => u.role === 'admin').length;
+        }
+
+        // ===== RENDER USERS TABLE =====
+        function renderUsers() {
+            const tbody = document.querySelector('#usersTable tbody');
+            if (!tbody) return;
+            const search = document.getElementById('searchUser')?.value.toLowerCase() || '';
+            const roleFilter = document.getElementById('filterRole')?.value || '';
+
+            let filtered = users.filter(u => {
+                const matchSearch = u.email.toLowerCase().includes(search) || (u.fullName || '').toLowerCase().includes(search);
+                const matchRole = roleFilter ? u.role === roleFilter : true;
+                return matchSearch && matchRole;
+            });
+
+            tbody.innerHTML = filtered.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${escapeHtml(u.fullName || '—')}</td>
+                    <td>${escapeHtml(u.email)}</td>
+                    <td><span class="role-badge role-${u.role}">${u.role === 'admin' ? 'Admin' : u.role === 'teacher' ? 'Enseignant' : 'Étudiant'}</span></td>
+                    <td>
+                        <button class="danger-btn" onclick="deleteUser(${u.id})" ${u.role === 'admin' && users.filter(x => x.role==='admin').length === 1 ? 'disabled title="Dernier admin"' : ''}>
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn-primary" style="padding:4px 12px; font-size:0.8rem; margin-left:6px;" onclick="resetPassword(${u.id})">
+                            <i class="fas fa-key"></i> MDP
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            updateAdminStats();
+        }
+
+        // ===== DELETE USER =====
+        function deleteUser(id) {
+            const u = users.find(x => x.id === id);
+            if (!u) return;
+            if (u.role === 'admin' && users.filter(x => x.role === 'admin').length === 1) {
+                alert('Impossible de supprimer le dernier administrateur !');
+                return;
+            }
+            if (!confirm(`Supprimer le compte de ${u.fullName || u.email} ?`)) return;
+
+            users = users.filter(x => x.id !== id);
+            if (u.role === 'student') {
+                students = students.filter(s => s.id !== u.refId);
+                grades = grades.filter(g => g.studentId !== u.refId);
+            } else if (u.role === 'teacher') {
+                teachers = teachers.filter(t => t.id !== u.refId);
+            }
+            saveData();
+            renderUsers();
+        }
+
+        // ===== RESET PASSWORD =====
+        function resetPassword(id) {
+            const u = users.find(x => x.id === id);
+            if (!u) return;
+            const newPwd = prompt(`Nouveau mot de passe pour ${u.email} :`, '');
+            if (newPwd && newPwd.length >= 4) {
+                u.password = newPwd;
+                saveData();
+                alert('Mot de passe mis à jour !');
+            } else if (newPwd !== null) {
+                alert('Mot de passe trop court (minimum 4 caractères).');
+            }
+        }
+
+        // ===== TAB SWITCH =====
+        function switchTab(name) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ===== EXPORT =====
+        function exportData(type) {
+            let data;
+            let filename;
+            if (type === 'students') {
+                data = { students, grades };
+                filename = 'edumanage_students.json';
+            } else if (type === 'grades') {
+                data = { grades, modules, students };
+                filename = 'edumanage_grades.json';
+            } else {
+                data = { users: users.map(u => ({...u, password: '***'})), teachers, students, modules, grades };
+                filename = 'edumanage_export.json';
+            }
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+        }
+
+        // ===== RESET SECTION =====
+        function resetSection(type) {
+            if (type === 'grades') {
+                if (!confirm('Effacer TOUTES les notes ? Cette action est irréversible.')) return;
+                grades = [];
+                saveData();
+                alert('Toutes les notes ont été supprimées.');
+            } else if (type === 'all') {
+                if (!confirm('Réinitialiser toutes les données aux valeurs démo ? Cette action est irréversible.')) return;
+                localStorage.removeItem('edumanage_data');
+                localStorage.removeItem('currentUser');
+                initDemoData();
+                saveData();
+                alert('Données réinitialisées ! Reconnectez-vous.');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ===== ADD USER =====
+        document.addEventListener('DOMContentLoaded', () => {
+            adminGuard();
+
+            document.getElementById('searchUser')?.addEventListener('input', renderUsers);
+
+            document.getElementById('addUserBtn')?.addEventListener('click', () => {
+                showModal(`
+                    <h3>Créer un compte utilisateur</h3>
+                    <form id="addUserForm">
+                        <div class="input-group">
+                            <label>Nom complet</label>
+                            <input type="text" id="newUserName" required placeholder="Prénom Nom">
+                        </div>
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="newUserEmail" required placeholder="email@ecole.fr">
+                        </div>
+                        <div class="input-group">
+                            <label>Mot de passe</label>
+                            <input type="text" id="newUserPwd" required placeholder="Mot de passe initial" value="changeme">
+                        </div>
+                        <div class="input-group">
+                            <label>Rôle</label>
+                            <select id="newUserRole">
+                                <option value="student">Étudiant</option>
+                                <option value="teacher">Enseignant</option>
+                                <option value="admin">Administrateur</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Créer le compte</button>
+                    </form>
+                `, () => {
+                    const name = document.getElementById('newUserName').value;
+                    const email = document.getElementById('newUserEmail').value;
+                    const pwd = document.getElementById('newUserPwd').value;
+                    const role = document.getElementById('newUserRole').value;
+
+                    if (users.find(u => u.email === email)) {
+                        alert('Cet email est déjà utilisé !'); return;
+                    }
+
+                    let refId = null;
+                    if (role === 'student') {
+                        const sid = nextIds.students++;
+                        students.push({ id: sid, nom_prenom: name, email });
+                        refId = sid;
+                    } else if (role === 'teacher') {
+                        const tid = nextIds.teachers++;
+                        teachers.push({ id: tid, nom_prenom: name, email });
+                        refId = tid;
+                    }
+
+                    users.push({ id: nextIds.users++, email, password: pwd, role, refId, fullName: name });
+                    saveData();
+                    renderUsers();
+                });
+            });
+
+            renderUsers();
+        });
+    </script>
+</body>
+</html>
